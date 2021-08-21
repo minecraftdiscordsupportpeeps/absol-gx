@@ -19,8 +19,8 @@ type Module struct {
 func (*Module) Load(ds *discordgo.Session) {
 	api.RegisterCommand("f", RunCommand)
 	api.RegisterCommand("factoid", RunCommand)
-
-	api.RegisterIntentNeed(discordgo.IntentsGuildMessages, discordgo.IntentsDirectMessages)
+	ds.AddHandler(deleter)
+	api.RegisterIntentNeed(discordgo.IntentsGuildMessages, discordgo.IntentsDirectMessages, discordgo.IntentsDirectMessageReactions, discordgo.IntentsGuildMessageReactions)
 }
 
 func RunCommand(ds *discordgo.Session, mc *discordgo.MessageCreate, cmd string, args []string) {
@@ -198,4 +198,27 @@ func CleanupFactoid(msg string) string {
 type Factoid struct {
 	Name    string `gorm:"name"`
 	Content string `gorm:"content"`
+}
+
+func deleter(ds *discordgo.Session, mr *discordgo.MessageReactionAdd) {
+	factoid, err := ds.ChannelMessage(mr.ChannelID, mr.MessageID)
+	if err != nil {
+		return
+	}
+	user, err := ds.User(mr.UserID)
+	if err != nil {
+		return
+	}
+	var footerSlice []string
+	var userString string
+	if len(factoid.Embeds) != 0 {
+		footerSlice = strings.Split(factoid.Embeds[0].Footer.Text, " ")
+		userString = footerSlice[len(footerSlice)-1]
+		if mr.Emoji.Name == "🗑️" && factoid.Author.ID == ds.State.User.ID && (user.Username+"#"+user.Discriminator) == userString {
+			err = ds.ChannelMessageDelete(mr.ChannelID, mr.MessageID)
+			if err != nil {
+				return
+			}
+		}
+	}
 }
