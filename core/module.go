@@ -10,6 +10,7 @@ import (
 	"github.com/lordralex/absol/modules/hjt"
 	"github.com/lordralex/absol/modules/log"
 	"github.com/lordralex/absol/modules/mcping"
+	"github.com/lordralex/absol/modules/namesearch"
 	"github.com/lordralex/absol/modules/search"
 	"github.com/lordralex/absol/modules/twitch"
 	"strings"
@@ -37,6 +38,8 @@ func LoadModule(ds *discordgo.Session, modules []string) {
 			loadedModules["search"] = &search.Module{}
 		case "mcping":
 			loadedModules["mcping"] = &mcping.Module{}
+		case "namesearch":
+			loadedModules["namesearch"] = &namesearch.Module{}
 		default:
 			logger.Err().Printf("No module with name %s\n", v)
 		}

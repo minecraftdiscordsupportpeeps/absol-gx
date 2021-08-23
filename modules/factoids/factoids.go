@@ -200,6 +200,7 @@ type Factoid struct {
 	Content string `gorm:"content"`
 }
 
+// this function is rather delicate, if anything about the rest of this file changes you should make sure this didn't break
 func deleter(ds *discordgo.Session, mr *discordgo.MessageReactionAdd) {
 	factoid, err := ds.ChannelMessage(mr.ChannelID, mr.MessageID)
 	if err != nil {
