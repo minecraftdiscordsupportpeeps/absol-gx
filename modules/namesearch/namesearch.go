@@ -61,6 +61,8 @@ func RunCommand(ds *discordgo.Session, mc *discordgo.MessageCreate, _ string, ar
 				Signature string `json:"signature"`
 			} `json:"raw"`
 		} `json:"textures"`
+		Legacy    bool   `json:"legacy"`
+		Demo      bool   `json:"demo"`
 		CreatedAt string `json:"created_at"`
 	}
 
@@ -82,10 +84,18 @@ func RunCommand(ds *discordgo.Session, mc *discordgo.MessageCreate, _ string, ar
 		Value:  result.Username,
 		Inline: false,
 	})
+	var notes string
+	if result.Demo == true {
+		notes += "**Note:** account is demo!"
+	}
+	if result.Legacy == true {
+		notes += "**Note:** account is legacy!"
+	}
 
 	// add image to embed
 	embed := &discordgo.MessageEmbed{
-		Title: "Result for `" + strings.Join(args, "") + "`",
+		Title:       "Result for `" + strings.Join(args, "") + "`",
+		Description: notes,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: result.Textures.Skin.URL,
 		},
